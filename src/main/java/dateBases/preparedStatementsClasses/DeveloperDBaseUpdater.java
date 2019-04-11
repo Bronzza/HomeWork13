@@ -1,8 +1,9 @@
 package dateBases.preparedStatementsClasses;
 
-import dateBases.dbUtils.ListCreator;
+import dateBases.databasesutils.ListCreator;
+import dateBases.databasesutils.MySqlConnector;
 import dateBases.entitys.Developer;
-import dateBases.enums.EntitysEnum;
+import lombok.extern.log4j.Log4j;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+@Log4j
 public class DeveloperDBaseUpdater {
 
     private final static String INSERT_NEW = "INSERT INTO developers VALUES (default, ?, ?, ?, ?, ?)";
@@ -17,15 +19,20 @@ public class DeveloperDBaseUpdater {
     private final static String SELECT = "SELECT * FROM developers WHERE last_name = ?";
     private final static String UPDATE = "UPDATE developers SET last_name = ? WHERE last_name = ?";
 
-    Connection connection;
-    PreparedStatement preparedStatement;
+    private PreparedStatement preparedStatement;
+    private Connection localConnection;
 
     public DeveloperDBaseUpdater(Connection connection) {
-        this.connection = connection;
+        this.localConnection = connection;
+        try {
+            preparedStatement = connection.prepareStatement(SELECT);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void addDeveloperToBase(String surName, String name, int age, int salary, boolean isMale) {
-        try {
+        try (Connection connection = MySqlConnector.getConnection()) {
             if (!connection.isClosed()) {
                 preparedStatement = connection.prepareStatement(INSERT_NEW);
                 preparedStatement.setString(1, surName);
@@ -36,12 +43,12 @@ public class DeveloperDBaseUpdater {
                 preparedStatement.execute();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQL exception happened");
         }
     }
 
     public void deleteDeveByLastName(String surName, String name) {
-        try {
+        try (Connection connection = MySqlConnector.getConnection()) {
             if (!connection.isClosed()) {
                 preparedStatement = connection.prepareStatement(DELETE);
                 preparedStatement.setString(1, surName);
@@ -49,30 +56,30 @@ public class DeveloperDBaseUpdater {
                 preparedStatement.execute();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQL exception happened");
         }
     }
 
     public List<Developer> selectDevelopers(String surName) {
         ResultSet resultSet = null;
-        try {
+        try (Connection connection = MySqlConnector.getConnection()) {
             preparedStatement = connection.prepareStatement(SELECT);
             preparedStatement.setString(1, surName);
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return ListCreator.iterateDevelResultSet(EntitysEnum.DEVELOPERS, resultSet);
+        return ListCreator.iterateDevelResultSet(resultSet);
     }
 
     public void changeSurNameDev(String newSurName, String oldSurname) {
-        try {
+        try (Connection connection = MySqlConnector.getConnection()) {
             preparedStatement = connection.prepareStatement(UPDATE);
             preparedStatement.setString(1, newSurName);
             preparedStatement.setString(2, oldSurname);
             preparedStatement.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQL exception happened");
         }
     }
 }

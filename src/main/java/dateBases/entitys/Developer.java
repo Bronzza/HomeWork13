@@ -2,7 +2,9 @@ package dateBases.entitys;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 @Getter
 @Setter
 public class Developer {
@@ -12,16 +14,4 @@ public class Developer {
     private Integer age;
     private Boolean isMale;
     private Integer salary;
-
-    @Override
-    public String toString() {
-        return "Developer{" +
-                "id=" + id +
-                ", surName='" + surName + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", age=" + age +
-                ", isMale=" + isMale +
-                ", salary=" + salary +
-                '}';
-    }
 }

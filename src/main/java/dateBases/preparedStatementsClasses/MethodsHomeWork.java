@@ -1,11 +1,9 @@
 package dateBases.preparedStatementsClasses;
 
-import dateBases.dbUtils.ListCreator;
+import dateBases.databasesutils.ListCreator;
+import dateBases.databasesutils.MySqlConnector;
 import dateBases.entitys.Developer;
-import dateBases.enums.EntitysEnum;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,49 +11,54 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-@Getter
-@Setter
+@Log4j
 public class MethodsHomeWork {
-    private static Logger logger = Logger.getLogger(MethodsHomeWork.class);
-    private static final String GET_ALL_DEV_OF_PROJ_ID = "SELECT developers.*FROM developers\n" +
+
+    private final static String GET_ALL_DEV_OF_PROJ_ID = "SELECT developers.*FROM developers\n" +
             "INNER JOIN develop_proj\n" +
             "ON developers.id = develop_proj.id_developers \n" +
             "WHERE develop_proj.id_project = ?";
-    private static final String GET_ALL_DEV_OF_LANG_NAME = "SELECT developers.*FROM developers\n" +
+    private final static String GET_ALL_DEV_OF_LANG_NAME = "SELECT developers.*FROM developers\n" +
             "INNER JOIN developer_skills\n" +
             "ON developers.id = developer_skills.id_developers \n" +
             "INNER JOIN language\n" +
             "ON developer_skills.id_language = language.id\n" +
             "WHERE language.lang= ?";
 
-    private Connection connection;
-    private PreparedStatement preparedStatement;
+    private Connection localConnection;
+    private PreparedStatement preparedStatementId;
+    private PreparedStatement preparedStatementName;
 
-    public MethodsHomeWork(Connection connection){
-        this.connection = connection;
-    }
-
-   public List<Developer> getAllDevelopersOfProject(int idProject){
-        ResultSet resultSet = null;
+    public MethodsHomeWork(Connection connection) {
+        this.localConnection = connection;
         try {
-            preparedStatement = connection.prepareStatement(GET_ALL_DEV_OF_PROJ_ID);
-            preparedStatement.setInt(1, idProject);
-            resultSet = preparedStatement.executeQuery();
-
+            preparedStatementId = connection.prepareStatement(GET_ALL_DEV_OF_PROJ_ID);
+            preparedStatementName = connection.prepareStatement(GET_ALL_DEV_OF_LANG_NAME);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return (List <Developer>) ListCreator.iterateDevelResultSet(EntitysEnum.DEVELOPERS, resultSet);
     }
-    public List<Developer> getAllDevelopersLangName(String name){
+
+    public List<Developer> getAllDevelopersOfProject(int idProject) {
         ResultSet resultSet = null;
-        try {
-            preparedStatement = connection.prepareStatement(GET_ALL_DEV_OF_LANG_NAME);
-            preparedStatement.setString(1, name);
-            resultSet = preparedStatement.executeQuery();
+        try (Connection connection = MySqlConnector.getConnection()) {
+            preparedStatementId.setInt(1, idProject);
+            resultSet = preparedStatementId.executeQuery();
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQL exception happened");
         }
-        return (List <Developer>) ListCreator.iterateDevelResultSet(EntitysEnum.DEVELOPERS, resultSet);
+        return ListCreator.iterateDevelResultSet(resultSet);
+    }
+
+    public List<Developer> getAllDevelopersLangName(String name) {
+        ResultSet resultSet = null;
+        try (Connection connection = MySqlConnector.getConnection()) {
+            preparedStatementName.setString(1, name);
+            resultSet = preparedStatementName.executeQuery();
+        } catch (SQLException e) {
+            log.error("SQL exception happened");
+        }
+        return ListCreator.iterateDevelResultSet(resultSet);
     }
 }
