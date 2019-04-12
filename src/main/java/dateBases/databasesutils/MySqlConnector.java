@@ -15,16 +15,16 @@ import java.util.Properties;
 @NoArgsConstructor
 public class MySqlConnector {
     private static Properties properties = new Properties();
-    private static String propertiesPath = "dbConfig.properties";
+    private static String propertiesPath = "/dbConfig.properties";
     private final static Logger LOGGER = Logger.getLogger(MySqlConnector.class);
     private static Connection connection;
 
     public static Connection getConnection() {
 
         try {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            InputStream propertiesStream = classLoader.getResourceAsStream(propertiesPath);
+            InputStream propertiesStream = MySqlConnector.class.getResourceAsStream(propertiesPath);
             properties.load(propertiesStream);
+            propertiesStream.close();
             connection = DriverManager.getConnection(properties.getProperty("db.conn.url"),
                     properties.getProperty("db.username"), properties.getProperty("db.password"));
         } catch (SQLException | IOException e) {
