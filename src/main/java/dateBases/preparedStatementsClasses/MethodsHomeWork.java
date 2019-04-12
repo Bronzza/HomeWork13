@@ -35,7 +35,7 @@ public class MethodsHomeWork {
             preparedStatementId = connection.prepareStatement(GET_ALL_DEV_OF_PROJ_ID);
             preparedStatementName = connection.prepareStatement(GET_ALL_DEV_OF_LANG_NAME);
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQL exception happened");
         }
     }
 

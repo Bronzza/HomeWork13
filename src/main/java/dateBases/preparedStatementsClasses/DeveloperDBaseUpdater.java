@@ -27,7 +27,7 @@ public class DeveloperDBaseUpdater {
         try {
             preparedStatement = connection.prepareStatement(SELECT);
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQL exception happened");
         }
     }
 
@@ -67,7 +67,7 @@ public class DeveloperDBaseUpdater {
             preparedStatement.setString(1, surName);
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQL exception happened");
         }
         return ListCreator.iterateDevelResultSet(resultSet);
     }
