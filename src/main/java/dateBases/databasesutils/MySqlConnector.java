@@ -14,19 +14,19 @@ import java.util.Properties;
 @Getter
 @NoArgsConstructor
 public class MySqlConnector {
-    private static Properties properties = new Properties();
-    private static String propertiesPath = "/dbConfig.properties";
+    private static final Properties PROPERTIES = new Properties();
+    private static final String PROPERTIES_PATH = "/dbConfig.properties";
     private final static Logger LOGGER = Logger.getLogger(MySqlConnector.class);
     private static Connection connection;
 
     public static Connection getConnection() {
 
         try {
-            InputStream propertiesStream = MySqlConnector.class.getResourceAsStream(propertiesPath);
-            properties.load(propertiesStream);
+            InputStream propertiesStream = MySqlConnector.class.getResourceAsStream(PROPERTIES_PATH);
+            PROPERTIES.load(propertiesStream);
             propertiesStream.close();
-            connection = DriverManager.getConnection(properties.getProperty("db.conn.url"),
-                    properties.getProperty("db.username"), properties.getProperty("db.password"));
+            connection = DriverManager.getConnection(PROPERTIES.getProperty("db.conn.url"),
+                    PROPERTIES.getProperty("db.username"), PROPERTIES.getProperty("db.password"));
         } catch (SQLException | IOException e) {
             LOGGER.error("Connection start failed");
         }

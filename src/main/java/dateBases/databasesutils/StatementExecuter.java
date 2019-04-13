@@ -14,11 +14,10 @@ import java.sql.Statement;
 @AllArgsConstructor
 @Setter
 public class StatementExecuter {
-    private static Connection connection;
     private static Statement statement;
 
     public static void executeDelUpdtCreate(String querySQL) {
-        try {
+        try (Connection connection = MySqlConnector.getConnection()) {
             statement = connection.createStatement();
             statement.execute(querySQL);
         } catch (SQLException e) {
@@ -28,7 +27,7 @@ public class StatementExecuter {
 
     public static ResultSet executeSelect(String querySelect) {
         ResultSet resultSet = null;
-        try {
+        try (Connection connection = MySqlConnector.getConnection()) {
             statement = connection.createStatement();
             resultSet = statement.executeQuery(querySelect);
         } catch (SQLException e) {
