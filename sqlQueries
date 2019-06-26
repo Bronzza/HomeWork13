@@ -1,0 +1,79 @@
+Init********************************
+	CREATE TABLE developers (
+    id int NOT NULL AUTO_INCREMENT,
+    last_name varchar(255) NOT NULL,
+    first_name varchar(255),
+	age int,
+    is_man boolean,PRIMARY KEY (id) );
+
+	create table language (
+	id int NOT NULL, AUTo_increment,
+	lang varchar (45),
+	PRIMARY KEY (id));
+
+	id int NOT NULL AUTO_INCREMENT,
+	skill varchar(45),
+	PRIMARY KEY(id))
+
+	CREATE TABLE developer_skills (
+	id_developers int ,
+	id_language int,
+	id_skills int,
+	FOREIGN KEY (id_developers) references developers (id),
+	FOREIGN KEY (id_language) references language (id),
+	FOREIGN KEY (id_skills) references skills (id)
+	);
+
+	CREATE TABLE projects (
+	id int NOT NULL AUTO_INCREMENT,
+	name varchar(45),
+	PRIMARY KEY(id));
+
+	CREATE TABLE develop_proj (
+	id_developers int ,
+	id_project int,
+	FOREIGN KEY (id_developers) references developers (id),
+	FOREIGN KEY (id_project) references projects (id)
+	);
+
+	CREATE TABLE companies (
+	id int NOT NULL AUTO_INCREMENT,
+	name varchar(45),
+	PRIMARY KEY(id));
+
+Modifications**********************
+	#1
+	ALTER table developers ADD salary int default 300;
+	UPDATE developers
+	SET salary = Case id
+			when 1 then 400
+			when 2 then 450
+            when 3 then 600
+            else 300
+            end
+            where id >0;
+
+	#2
+	SELECT develop_proj.id_project, SUM(developers.salary) FROM develop_proj
+	inner JOIN developers
+	ON develop_proj.id_developers = developers.id
+	where develop_proj.id_project =3;
+
+	#3
+	SELECT SUM(salary) FROM developers
+	INNER JOIN developer_skills
+	ON developer_skills.id_developers = developers.id
+	WHERE (id_language=1);
+
+	#4
+	ALTER TABLE projects
+	ADD COLUMN cost INT default 1000;
+
+	#5
+	SELECT develop_proj.id_project, projects.name, AVG(developers.salary) FROM develop_proj
+	LEFT JOIN developers
+	ON develop_proj.id_developers = developers.id
+	INNER JOIN projects ON develop_proj.id_project=projects.id
+	GROUP BY develop_proj.id_project
+	ORDER BY SUM(developers.salary)
+	limit 1;
